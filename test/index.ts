@@ -20,6 +20,7 @@ const s3UrlFile = "https://s3fileurl.com";
 const title = "This is the title of example.com";
 const html = `<html><head><title>${title}</title></head></html>`;
 afterEach(restore);
+const name = "__file_name__";
 
 describe("handler", () => {
   it("should get the html from a url", async () => {
@@ -27,13 +28,12 @@ describe("handler", () => {
       data: html,
     });
     stub(storage, "storeHtmlFile").resolves(s3UrlFile);
-    const output = await executeLambda("http://example.com", "");
+    const output = await executeLambda("http://example.com", name);
     // console.log({ output });
     strictEqual(output?.title, title);
     strictEqual(output?.s3_url, s3UrlFile);
   });
   it("should extract and return the page title of a url", async () => {
-    const name = "__file_name__";
     stub(axios, "get").resolves({
       data: html,
     });
