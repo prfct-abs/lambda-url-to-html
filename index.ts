@@ -34,6 +34,7 @@ export interface Input {
 export interface Output {
   title: string;
   s3_url: string;
+  error: string;
 }
 
 export const handler = async (
@@ -42,14 +43,21 @@ export const handler = async (
   const output: Output = {
     title: "",
     s3_url: "",
+    error: "",
   };
 
   try {
     const body = event.queryStringParameters as unknown as Input;
+
+    if (!body.name || !body.url) {
+      throw Error("name and url are required!");
+    }
+
     const res = await axios.get(body.url);
     output.title = cheerio.load(res.data)("head > title").text();
     output.s3_url = await storage.storeHtmlFile(res.data, body.name);
   } catch (err) {
+    output.error = err.message;
     console.log(err);
   }
 
